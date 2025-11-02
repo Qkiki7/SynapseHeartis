@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heartis - Discover Your Heart Core</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Futura:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Playfair Display', serif;
+      overflow-x: hidden;
+    }
+
+    /* 基础样式 */
+    :root {
+      --hc-accent: #f8781f;
+      --hc-sub: rgba(54,142,223,0.85);
+      --hc-select: #f7c59f;
+      --hc-select-ring: #f5b57f;
+      --hc-text: #5A463A;
+      --hc-strong: #402A20;
+      --hc-card: rgba(255, 255, 255, 0.7);
+      --orange: #f8781f;
+      --blue: #368edf;
+      --brown: #402A20;
+    }
+
+    /* 动画 */
+    @keyframes heartbeat-soft {
+      0% {
+        transform: scale(1);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        opacity: 1;
+      }
+      30% {
+        transform: scale(1.03);
+        text-shadow: 0 0 16px rgba(255, 255, 255, 0.6),
+                     0 0 32px rgba(255, 200, 150, 0.25);
+        opacity: 1;
+      }
+      60% {
+        transform: scale(1);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+        opacity: 1;
+      }
+    }
+
+    .animate-heartbeat-soft {
+      animation: heartbeat-soft 1.8s ease-in-out infinite;
+      will-change: transform, text-shadow;
+    }
+
+    @keyframes glow {
+      0% {
+        box-shadow: 0 0 0 0 rgba(247, 197, 159, 0.3);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 20px 6px rgba(247, 197, 159, 0.35);
+        transform: scale(1.03);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(247, 197, 159, 0.3);
+        transform: scale(1);
+      }
+    }
+
+    .animate-glow {
+      animation: glow 2s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .animate-float {
+      animation: float 2.3s ease-in-out infinite;
+    }
+
+    @keyframes heartis-click {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(255, 200, 120, 0);
+      }
+      40% {
+        transform: scale(0.96);
+        box-shadow: 0 0 30px rgba(255, 220, 150, 0.6);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(255, 200, 120, 0);
+      }
+    }
+
+    .animate-heartis-click {
+      animation: heartis-click 0.4s ease-out;
+    }
+
+    /* 页面容器 */
+    .page {
+      display: none;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* 按钮样式 */
+    .heartis-button {
+      display: inline-block;
+      padding: 12px 64px;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: white;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      transition: all 0.5s ease-out;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .heartis-button:hover {
+      background: rgba(255,255,255,0.25);
+      box-shadow: 0 0 25px rgba(255,200,120,0.45);
+      border-color: rgba(255,230,180,0.6);
+    }
+
+    .heartis-button:active {
+      transform: scale(0.95);
+    }
+
+    /* 首页样式 */
+    #home-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      color: white;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #home-page video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+
+    #home-page .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+      z-index: -1;
+    }
+
+    #home-page h1 {
+      font-size: clamp(2.5rem, 5vw, 3.75rem);
+      margin-bottom: 48px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* 开始页样式 */
+    #start-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    #start-page video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+
+    #start-page .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+      z-index: -1;
+    }
+
+    #start-page .card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 48px 64px;
+      width: 90%;
+      max-width: 900px;
+      text-align: center;
+      margin: 0 auto;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    #start-page .card p {
+      font-size: 14px;
+      letter-spacing: 0.25em;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 24px;
+    }
+
+    #start-page .card h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: white;
+      margin-bottom: 32px;
+      white-space: nowrap;
+    }
+
+    #start-page .card .subtitle {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    /* 测试页样式 */
+    #quiz-page {
+      position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: #402A20;
+      font-family: 'Playfair Display', serif;
+    }
+
+    #quiz-page video {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    #quiz-page .overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(217,168,108,0.4), rgba(238,199,140,0.5), rgba(255,255,255,0.6));
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #quiz-page .content {
+      position: relative;
+      z-index: 10;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 64px 24px;
+    }
+
+    #quiz-page .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    #quiz-page .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 2.3rem);
+      color: var(--orange);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    #quiz-page .header p {
+      font-size: clamp(18px, 2vw, 20px);
+      color: rgba(54,142,223,0.85);
+      font-style: italic;
+      margin-bottom: 32px;
+    }
+
+    #quiz-page .progress-container {
+      width: 60%;
+      max-width: 600px;
+      margin: 32px auto;
+      position: relative;
+    }
+
+    #quiz-page .progress-bar {
+      height: 12px;
+      background: rgba(243,227,211,0.7);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #quiz-page .progress-fill {
+      position: absolute;
+      inset: 0;
+      left: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #fcd9a1 0%, #f8b27a 60%, #f38a3a 100%);
+      box-shadow: 0 0 12px 3px rgba(248,120,31,0.35);
+      transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    #quiz-page .progress-heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: -6px;
+      transition: left 0.7s ease-in-out;
+    }
+
+    #quiz-page .progress-label {
+      margin-top: 12px;
+      color: #f5b57f;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+    }
+
+    #quiz-page .questions {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      margin-bottom: 48px;
+    }
+
+    #quiz-page .question-card {
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    #quiz-page .question-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    #quiz-page .question-number {
+      display: inline-grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f7c59f;
+      color: #402A20;
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    #quiz-page .question-text {
+      font-size: clamp(15px, 2vw, 16px);
+      line-height: 1.65;
+      color: #402A20;
+    }
+
+    #quiz-page .question-text span {
+      color: #5A463A;
+    }
+
+    #quiz-page .question-text em {
+      font-style: normal;
+      font-weight: 500;
+      color: #5A463A;
+    }
+
+    #quiz-page .options {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    #quiz-page .option-btn {
+      height: 56px;
+      border-radius: 12px;
+      border: 1px solid #f9d8b9;
+      font-size: 12px;
+      padding: 8px;
+      transition: all 0.5s ease-in-out;
+      cursor: pointer;
+      background: white;
+      color: #5A463A;
+    }
+
+    #quiz-page .option-btn:hover {
+      border-color: #f6be8c;
+      box-shadow: 0 0 18px 6px rgba(245,181,127,0.35);
+    }
+
+    #quiz-page .option-btn.selected {
+      background: #f7c59f;
+      color: #402A20;
+      border-color: #f7c59f;
+      box-shadow: 0 0 20px 6px rgba(247,197,159,0.35);
+    }
+
+    #quiz-page .question-hint {
+      margin-top: 12px;
+      font-size: 11px;
+      color: rgba(90,70,58,0.8);
+      display: flex;
+      justify-content: space-between;
+      padding: 0 4px;
+    }
+
+    #quiz-page .navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 48px;
+    }
+
+    #quiz-page .nav-btn {
+      padding: 12px 32px;
+      border-radius: 16px;
+      font-weight: 500;
+      border: 1px solid;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      font-family: 'Playfair Display', serif;
+    }
+
+    #quiz-page .nav-btn.prev {
+      background: rgba(255,255,255,0.6);
+      color: #5A463A;
+      border-color: rgba(245,181,127,0.6);
+    }
+
+    #quiz-page .nav-btn.prev:hover {
+      box-shadow: 0 0 20px 6px rgba(245,181,127,0.35);
+    }
+
+    #quiz-page .nav-btn.next {
+      background: var(--orange);
+      color: white;
+      border: none;
+      font-weight: 600;
+    }
+
+    #quiz-page .nav-btn.next:hover {
+      box-shadow: 0 0 20px 6px rgba(248,120,31,0.45);
+    }
+
+    #quiz-page .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* 结果页样式 */
+    #result-page {
+      display: grid;
+      grid-template-columns: 55% 45%;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #f7e4cf, #fbeede, #fffaf6);
+    }
+
+    #result-page .video-section {
+      position: relative;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #result-page .video-section video,
+    #result-page .video-section img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #result-page .view-toggle {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: rgba(255,255,255,0.4);
+      color: #402A20;
+      font-weight: 500;
+      border-radius: 999px;
+      padding: 8px 16px;
+      border: none;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+      font-family: 'Playfair Display', serif;
+    }
+
+    #result-page .view-toggle:hover {
+      background: rgba(255,255,255,0.6);
+    }
+
+    #result-page .text-section {
+      padding: 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 1.7;
+      overflow-y: auto;
+    }
+
+    #result-page .text-section h2 {
+      font-size: clamp(32px, 3vw, 46px);
+      color: var(--orange);
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    #result-page .text-section .essence-label {
+      font-size: clamp(16px, 1.6vw, 20px);
+      color: var(--blue);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    #result-page .text-section .essence-text {
+      font-size: clamp(15px, 1.6vw, 19px);
+      color: var(--brown);
+      font-style: italic;
+      margin-bottom: 24px;
+      margin-left: 8px;
+    }
+
+    #result-page .text-section .paragraph {
+      color: var(--brown);
+      margin-bottom: 16px;
+      font-size: clamp(15px, 1.6vw, 18px);
+    }
+
+    #result-page .text-section .remember-label {
+      font-size: clamp(16px, 1.6vw, 20px);
+      color: var(--blue);
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 4px;
+    }
+
+    #result-page .text-section .remember-text {
+      font-size: clamp(15px, 1.6vw, 19px);
+      color: var(--orange);
+      font-style: italic;
+      line-height: 1.7;
+    }
+
+    #result-page .restart-btn {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      padding: 12px 32px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--orange);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(248,120,31,0.6);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Playfair Display', serif;
+    }
+
+    #result-page .restart-btn:hover {
+      background: rgba(248,120,31,0.1);
+      box-shadow: 0 0 20px rgba(248,120,31,0.5);
+      transform: scale(1.05);
+    }
+
+    /* 隐藏类 */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- 首页 -->
+  <div id="home-page" class="page active">
+    <video autoplay loop playsInline muted>
+      <source src="/bg/heartisynapse-bg.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+    <div style="position: relative; z-index: 10;">
+      <h1 class="animate-heartbeat-soft">Heartis has been waiting for you.</h1>
+      <button class="heartis-button" onclick="showPage('start')">STEP INSIDE</button>
+    </div>
+  </div>
+
+  <!-- 开始页 -->
+  <div id="start-page" class="page">
+    <video autoplay loop playsInline muted>
+      <source src="/bg/heartisynapse-bg.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+    <div class="card">
+      <p>PREPARE TO SCAN</p>
+      <h1 class="animate-heartbeat-soft">Heartis will read your signal.</h1>
+      <p class="subtitle">~3 minutes · 30 questions · 16 cores · visual only</p>
+      <button class="heartis-button" onclick="showPage('quiz')">LET'S BEGIN THE TESTING!!</button>
+    </div>
+  </div>
+
+  <!-- 测试页 -->
+  <div id="quiz-page" class="page">
+    <video autoplay loop playsInline muted>
+      <source src="/bg/ocean.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+    <div class="content">
+      <div class="header">
+        <h1>Every choice reflects a little piece of your heart.</h1>
+        <p>No 'right' answers. Go with your first feeling.</p>
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+            <svg class="progress-heart" id="progress-heart" viewBox="0 0 24 24" fill="#f8781f">
+              <path d="M12.1 21s-6.6-4.35-9.1-7.6C1.1 10.9 2 7.7 4.7 6.6c1.8-.8 3.9-.1 5.0 1.3 1.1-1.4 3.2-2.1 5.0-1.3 2.7 1.1 3.6 4.3 1.7 6.8C18.7 16.6 12.1 21 12.1 21z" />
+            </svg>
+          </div>
+          <p class="progress-label" id="progress-label">Q1–6 / 30 • Page 1/5</p>
+        </div>
+      </div>
+      <div class="questions" id="questions-container"></div>
+      <div class="navigation">
+        <button class="nav-btn prev hidden" id="prev-btn" onclick="goPrev()">← Previous</button>
+        <button class="nav-btn next" id="next-btn" onclick="goNext()">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结果页 -->
+  <div id="result-page" class="page">
+    <div class="video-section">
+      <video id="result-video" autoplay loop muted playsInline></video>
+      <img id="result-heart" class="hidden" alt="Heart View">
+      <button class="view-toggle" onclick="toggleView()">Heart View</button>
+    </div>
+    <div class="text-section">
+      <h2 id="result-title"></h2>
+      <p class="essence-label">Core Essence:</p>
+      <p class="essence-text" id="result-essence"></p>
+      <div id="result-paragraphs"></div>
+      <p class="remember-label">Remember:</p>
+      <p class="remember-text" id="result-remember"></p>
+      <button class="restart-btn" onclick="restart()">Restart</button>
+    </div>
+  </div>
+
+  <script>
+    // 题库
+    const QUESTIONS = [
+      { id: 1, text: "Tends to be quiet.", reverse: true },
+      { id: 2, text: "Is compassionate, has a soft heart." },
+      { id: 3, text: "Tends to be disorganized.", reverse: true },
+      { id: 4, text: "Worries a lot." },
+      { id: 5, text: "Is fascinated by art, music, or literature." },
+      { id: 6, text: "Is dominant, acts as a leader." },
+      { id: 7, text: "Is sometimes rude to others.", reverse: true },
+      { id: 8, text: "Has difficulty getting started on tasks.", reverse: true },
+      { id: 9, text: "Tends to feel depressed, blue." },
+      { id: 10, text: "Has little interest in abstract ideas.", reverse: true },
+      { id: 11, text: "Is full of energy." },
+      { id: 12, text: "Assume the best about people." },
+      { id: 13, text: "Is reliable, can always be counted on." },
+      { id: 14, text: "Is emotionally stable, not easily upset.", reverse: true },
+      { id: 15, text: "Is original, comes up with new ideas." },
+      { id: 16, text: "Is outgoing, sociable." },
+      { id: 17, text: "Can be cold and uncaring.", reverse: true },
+      { id: 18, text: "Keeps things neat and tidy." },
+      { id: 19, text: "Is relaxed, handles stress well.", reverse: true },
+      { id: 20, text: "Has few artistic interests.", reverse: true },
+      { id: 21, text: "Prefers to have others take charge.", reverse: true },
+      { id: 22, text: "Is respectful, treats others with respect." },
+      { id: 23, text: "Is persistent, works until the task is finished." },
+      { id: 24, text: "Feels secure, comfortable with self.", reverse: true },
+      { id: 25, text: "Is complex, a deep thinker." },
+      { id: 26, text: "Is less active than other people.", reverse: true },
+      { id: 27, text: "Tends to find fault with others.", reverse: true },
+      { id: 28, text: "Can be somewhat careless.", reverse: true },
+      { id: 29, text: "Is temperamental, gets emotional easily." },
+      { id: 30, text: "Has little creativity.", reverse: true },
+    ];
+
+    const LIKERT = [
+      { v: 1, label: "Strongly Disagree" },
+      { v: 2, label: "Disagree a little" },
+      { v: 3, label: "Neutral" },
+      { v: 4, label: "Agree a little" },
+      { v: 5, label: "Strongly Agree" },
+    ];
+
+    const PER_PAGE = 6;
+    const TOTAL_PAGES = Math.ceil(QUESTIONS.length / PER_PAGE);
+
+    // 计分逻辑
+    const REVERSED = new Set([1, 3, 7, 8, 10, 14, 19, 20, 21, 24, 26, 27, 28, 30]);
+    const OCEA = {
+      O: [5, 10, 15, 20, 25, 30, 14, 19, 24, 29, 4, 9],
+      C: [3, 8, 13, 18, 23, 28],
+      E: [1, 6, 11, 16, 21, 26],
+      A: [2, 7, 12, 17, 22, 27],
+    };
+
+    function rev(id, v) {
+      return REVERSED.has(id) ? 6 - v : v;
+    }
+
+    function avg(ids, ans) {
+      const arr = ids.map(id => rev(id, ans[id] || 3));
+      const sum = arr.reduce((a, b) => a + b, 0);
+      return +(sum / arr.length).toFixed(2);
+    }
+
+    function scoreOCEA(ans) {
+      return {
+        O: avg(OCEA.O, ans),
+        C: avg(OCEA.C, ans),
+        E: avg(OCEA.E, ans),
+        A: avg(OCEA.A, ans),
+      };
+    }
+
+    function toHL(x) {
+      return x > 3 ? "H" : "L";
+    }
+
+    function codeOCEA(O, C, E, A) {
+      return `${toHL(O)}${toHL(C)}${toHL(E)}${toHL(A)}`;
+    }
+
+    // OCEA code 到 heartis 类型映射
+    const codeToHeartisType = {
+      "HHHH": "flare",
+      "HHHL": "volt",
+      "HHLH": "drift",
+      "HHLL": "crystal",
+      "HLHH": "ignis",
+      "HLHL": "zephy",
+      "HLLH": "bloom",
+      "HLLL": "luma",
+      "LHHH": "gem",
+      "LHHL": "core",
+      "LHLH": "thorn",
+      "LHLL": "machina",
+      "LLHH": "muse",
+      "LLHL": "verdan",
+      "LLLH": "tide",
+      "LLLL": "terra",
+    };
+
+    // 结果数据
+    const heartisData = {
+      ignis: {
+        title: "Heartis·Ignis",
+        core: "Passionate · Bold · Driven by Momentum",
+        essence: "Fire Heartis",
+        paragraphs: [
+          "You are the Fire Heartis, a spark that turns vision into motion.",
+          "Your courage lights the path ahead, igniting hearts and pushing ideas into action.",
+          "Wherever you go, the air hums with your will to begin.",
+          "But flames that rise too high burn out just as fast.",
+          "Your fire, once unchecked, can consume your focus or exhaust your warmth.",
+        ],
+        remember: "Before lighting others, remember to refuel yourself. Even the strongest blaze needs a quiet ember at its core.",
+      },
+      flare: {
+        title: "Heartis·Flare",
+        core: "Passionate · Confident · Radiant · Born to Lead",
+        essence: "Solar Heartis",
+        paragraphs: [
+          "You are the Solar Heartis, a living star whose heart burns with light and warmth.",
+          "Your energy ignites others, inspiring motion, courage, and creation. You lead naturally, shaping the world around you with your vision and drive.",
+          "Yet even the brightest suns need to rest. Sometimes, your constant fire may leave you weary or make others struggle to keep pace.",
+        ],
+        remember: "Light also heals when turned inward. Let your own glow embrace you, rest is a form of warmth too.",
+      },
+      volt: {
+        title: "Heartis·Volt",
+        core: "Quick-minded · Agile · Sparking with Restless Ideas",
+        essence: "Electric Heartis",
+        paragraphs: [
+          "You are the Electric Heartis, a current of intuition, flashing through thoughts faster than lightning.",
+          "Your mind is alive with sparks of insight and movement, always connecting, shifting, creating in bursts of brilliance.",
+          "But when the current runs too high, even light can burn out.",
+        ],
+        remember: "Leave a pause between the surges. In stillness, your brilliance finds rhythm again.",
+      },
+      tide: {
+        title: "Heartis·Tide",
+        core: "Gentle · Empathic · Enduring",
+        essence: "Tide Heartis",
+        paragraphs: [
+          "You are the Tide Heartis, calm, embracing, endlessly flowing.",
+          "You sense the feelings that ripple beneath words, and your quiet warmth becomes a refuge for others.",
+          "Your empathy is your ocean, vast, patient, ever giving.",
+          "Yet when you pour too much of yourself into others, the tides of care may carry you away from your own shore.",
+        ],
+        remember: "You are not just the current. You are the depth beneath it. Let your compassion flow, but let it return to you as well. Hold your boundaries as harbors, not walls. Only then can your calm bring peace, not exhaustion.",
+      },
+      drift: {
+        title: "Heartis·Drift",
+        core: "Sensitive · Imaginative · Gentle as Drifting Clouds",
+        essence: "Cloud Heartis",
+        paragraphs: [
+          "You are the Cloud Heartis, a dreamer who moves through colors and feelings, painting the world in soft emotion.",
+          "Your imagination flows freely, turning empathy into art, and transforming every fleeting mood into a quiet story.",
+          "Yet, clouds can lose their shape when the wind grows strong.",
+        ],
+        remember: "Let your thoughts settle and take form. Only grounded dreams can fall as rain that nourishes the world.",
+      },
+      thorn: {
+        title: "Heartis·Thorn",
+        core: "Steady · Self-Contained · Quietly Loyal",
+        essence: "Cactus Heartis",
+        paragraphs: [
+          "You are the Cactus Heartis, strong in silence, growing where few dare to stand.",
+          "Your calm exterior shields a tender core; discipline and patience make you the silent protector of those you care for.",
+          "Yet strength, when held too tightly, can harden into solitude. You rarely ask for warmth, though your heart quietly longs to be understood.",
+        ],
+        remember: "Let others glimpse your softness. Vulnerability is not weakness, it's the bridge that turns solitude into trust.",
+      },
+      terra: {
+        title: "Heartis·Terra",
+        core: "Steady · Reliable · Grounded",
+        essence: "Stone Heartis",
+        paragraphs: [
+          "You are the Stone Heartis, calm, dependable, and quietly powerful. You carry the gravity of experience, standing firm when storms rise.",
+          "Your strength lies in patience and persistence, in doing what must be done, even when no one sees.",
+          "But sometimes, your steadfastness turns into walls. You hold so tightly to what's proven that you leave little room for the new to grow.",
+        ],
+        remember: "Don't fear the cracks. They are where light finds its way in. Even mountains shift, and that's how valleys are born. Let a little wind reshape you; your strength will not fade. It will shine.",
+      },
+      gem: {
+        title: "Heartis·Gem",
+        core: "Reliable · Disciplined · Polished with Purpose",
+        essence: "Gem Heartis",
+        paragraphs: [
+          "You are the Gem Heartis, a being cut from precision and light.",
+          "You thrive in clarity and structure, bringing trust and refinement to everything you touch. Your presence steadies others; your pursuit of excellence shines through quiet consistency.",
+          "Yet even gems bear tiny fractures, not flaws, but proof of life within form.",
+        ],
+        remember: "Perfection can weigh heavy when it leaves no room to breathe. Allow yourself to shimmer through the cracks; that's where your truest brilliance lives.",
+      },
+      verdan: {
+        title: "Heartis·Verdan",
+        core: "Outgoing · Adaptive · Ever-growing",
+        essence: "Vine Heartis",
+        paragraphs: [
+          "You are the Vine Heartis, the spirit of growth that never stands still.",
+          "You stretch toward sunlight, weaving yourself through every opportunity and new connection.",
+          "Yet sometimes, your reach grows faster than your roots, and the world's noise can tug you in too many directions at once.",
+        ],
+        remember: "Anchor yourself in purpose, and your expansion will gain depth. With each steady root, your branches will rise higher.",
+      },
+      bloom: {
+        title: "Heartis·Bloom",
+        core: "Gentle · Empathetic · Nurturing with Quiet Grace",
+        essence: "Flower Heartis",
+        paragraphs: [
+          "You are the Flower Heartis, the soft bloom that brings warmth wherever it grows.",
+          "You sense emotions like sunlight on petals, offering comfort through presence, kindness, and care. Your empathy turns connection into healing.",
+          "Yet when you give endlessly, your own roots can run dry. The same tenderness that soothes others may drain your light if you forget yourself.",
+        ],
+        remember: "Remember, even the kindest garden needs boundaries. Nurture your own soil first, only then can your warmth truly blossom.",
+      },
+      zephy: {
+        title: "Heartis·Zephy",
+        core: "Free-spirited · Quick · Ever-adapting",
+        essence: "Wind Heartis",
+        paragraphs: [
+          "You are the Wind Heartis, a breeze that moves through change with ease.",
+          "You sense new directions before others do, shifting with curiosity, blending into every place like air finding its rhythm.",
+          "But freedom, when boundless, can scatter your strength. Your many passions pull you forward, yet few hold you still long enough to bloom.",
+        ],
+        remember: "Find where the wind pauses, that's where inspiration becomes creation. When you choose a path to stay, your lightness turns into power.",
+      },
+      core: {
+        title: "Heartis·Core",
+        core: "Logical · Composed · Grounded in Precision",
+        essence: "Metal Heartis",
+        paragraphs: [
+          "You are the Metal Heartis, the heartbeat of order, forged from clarity and control.",
+          "Your mind runs like a flawless mechanism, steady and efficient, turning chaos into system and vision into structure.",
+          "But even perfect systems need air. In your pursuit of mastery, warmth can slip away. Emotion becomes the one variable you hesitate to calculate.",
+        ],
+        remember: "Reason and warmth are not rivals. Let your structure breathe, and your strength will resonate deeper than steel.",
+      },
+      crystal: {
+        title: "Heartis·Crystal",
+        core: "Rational · Calm · Elegant in Precision",
+        essence: "Ice Heartis",
+        paragraphs: [
+          "You are the Ice Heartis, a being of order and symmetry, shaped by clarity and composed thought.",
+          "In your world, logic glimmers like sunlight refracted through frozen glass, every angle deliberate, every choice clean. You bring stability where others lose direction, the calm at the center of motion.",
+          "Yet this brilliance can sometimes build walls. The same structure that protects you may also keep warmth at bay, leaving others unsure how to reach you.",
+        ],
+        remember: "Even ice carries memory of water. Let a little warmth flow through your surface. Connection will not blur your clarity, it will deepen it.",
+      },
+      muse: {
+        title: "Heartis·Muse",
+        core: "Playful · Creative · Full of Light",
+        essence: "Bubble Heartis",
+        paragraphs: [
+          "You are the Bubble Heartis, a spark of joy that drifts through the air, turning ordinary moments into color and laughter.",
+          "You create easily, dream freely, and your presence lifts those around you like sunlight caught on glass.",
+          "But bubbles rise fast and fade quick. Inspiration without grounding can vanish before it blooms.",
+        ],
+        remember: "Let your joy take root. When light meets depth, even the briefest shimmer becomes eternal.",
+      },
+      machina: {
+        title: "Heartis·Machina",
+        core: "Diligent · Precise · Steady in Rhythm",
+        essence: "Gear Heartis",
+        paragraphs: [
+          "You are the Gear Heartis, the quiet engine that keeps the world in motion.",
+          "You find beauty in structure, comfort in clarity, and purpose in every completed task. Your discipline turns complexity into order, your focus into quiet progress.",
+          "Yet in the hum of precision, warmth can fade. Efficiency may silence the pulse of feeling beneath the mechanism.",
+        ],
+        remember: "Pause now and then, let the machine hear its own heartbeat. Even gears need moments of stillness to move with grace again.",
+      },
+      luma: {
+        title: "Heartis·Luma",
+        core: "Sensitive · Introspective · Quietly Radiant",
+        essence: "Mercury Heartis",
+        paragraphs: [
+          "You are the Mercury Heartis, a thinker who moves like water and reflects like light.",
+          "Your mind is a quiet tide of imagination, flowing between depth and clarity. You see what others miss, the shimmer beneath stillness, the story inside silence.",
+          "But when emotions swirl too deep, you can lose the line between feeling and overthinking. The same reflection that reveals truth may also trap you within it.",
+        ],
+        remember: "Let your dreams touch the surface of the world. When thought meets action, even still water shines.",
+      },
+    };
+
+    // 应用状态
+    let currentPage = 'home';
+    let currentQuizPage = 0;
+    let answers = {};
+    let isHeartView = false;
+
+    // 页面切换
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(`${page}-page`).classList.add('active');
+      currentPage = page;
+
+      if (page === 'quiz') {
+        loadQuizPage();
+        // 加载保存的答案
+        try {
+          const saved = localStorage.getItem('heartis_answers');
+          if (saved) answers = JSON.parse(saved);
+        } catch (e) {}
+      }
+
+      // 翻页时滚动到顶部
+      if (page === 'quiz') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    // 加载测试页
+    function loadQuizPage() {
+      const start = currentQuizPage * PER_PAGE;
+      const end = Math.min(start + PER_PAGE, QUESTIONS.length);
+      const slice = QUESTIONS.slice(start, end);
+
+      const container = document.getElementById('questions-container');
+      container.innerHTML = '';
+
+      slice.forEach(q => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        const selected = answers[q.id];
+
+        card.innerHTML = `
+          <div class="question-header">
+            <span class="question-number">${q.id}</span>
+            <p class="question-text">
+              <span>I am someone who</span> <em>${q.text}</em>
+            </p>
+          </div>
+          <div class="options">
+            ${LIKERT.map(l => `
+              <button class="option-btn ${selected === l.v ? 'selected' : ''}" 
+                      onclick="selectAnswer(${q.id}, ${l.v})"
+                      title="${l.label}">
+                ${l.label}
+              </button>
+            `).join('')}
+          </div>
+          <div class="question-hint">
+            <span>Disagree</span>
+            <span>Neutral</span>
+            <span>Agree</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      updateProgress();
+      updateNavigation();
+    }
+
+    // 选择答案
+    function selectAnswer(id, value) {
+      answers[id] = value;
+      localStorage.setItem('heartis_answers', JSON.stringify(answers));
+      loadQuizPage();
+    }
+
+    // 更新进度
+    function updateProgress() {
+      const answeredCount = Object.keys(answers).length;
+      const progress = Math.min(100, (answeredCount / 30) * 100);
+      
+      document.getElementById('progress-fill').style.width = `${progress}%`;
+      document.getElementById('progress-heart').style.left = `calc(${progress}% - 10px)`;
+      
+      const startQ = currentQuizPage * PER_PAGE + 1;
+      const endQ = Math.min((currentQuizPage + 1) * PER_PAGE, 30);
+      document.getElementById('progress-label').textContent = 
+        `Q${startQ}–${endQ} / 30 • Page ${currentQuizPage + 1}/${TOTAL_PAGES}`;
+    }
+
+    // 更新导航
+    function updateNavigation() {
+      const start = currentQuizPage * PER_PAGE;
+      const end = Math.min(start + PER_PAGE, QUESTIONS.length);
+      const slice = QUESTIONS.slice(start, end);
+      const pageCompleted = slice.every(q => answers[q.id] !== undefined);
+
+      document.getElementById('prev-btn').classList.toggle('hidden', currentQuizPage === 0);
+      
+      const nextBtn = document.getElementById('next-btn');
+      nextBtn.disabled = !pageCompleted;
+      nextBtn.textContent = currentQuizPage + 1 === TOTAL_PAGES 
+        ? 'View My Result →' 
+        : 'Next →';
+      
+      if (currentQuizPage === 0 && pageCompleted) {
+        nextBtn.style.margin = '0 auto';
+      } else {
+        nextBtn.style.margin = '';
+      }
+    }
+
+    // 翻页
+    function goNext() {
+      const start = currentQuizPage * PER_PAGE;
+      const end = Math.min(start + PER_PAGE, QUESTIONS.length);
+      const slice = QUESTIONS.slice(start, end);
+      const pageCompleted = slice.every(q => answers[q.id] !== undefined);
+
+      if (!pageCompleted) return;
+
+      if (currentQuizPage + 1 < TOTAL_PAGES) {
+        currentQuizPage++;
+        loadQuizPage();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        showResult();
+      }
+    }
+
+    function goPrev() {
+      if (currentQuizPage > 0) {
+        currentQuizPage--;
+        loadQuizPage();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    // 显示结果
+    function showResult() {
+      // 检查是否所有问题都已回答
+      const allAnswered = Array.from({ length: 30 }, (_, i) => i + 1).every(
+        id => answers[id] !== undefined
+      );
+
+      if (!allAnswered) {
+        alert("Please answer all questions first.");
+        return;
+      }
+
+      // 计算分数
+      const { O, C, E, A } = scoreOCEA(answers);
+      const code = codeOCEA(O, C, E, A);
+      const heartisType = codeToHeartisType[code] || 'ignis';
+      const data = heartisData[heartisType];
+
+      // 保存结果
+      try {
+        const answersArray = Array.from({ length: 30 }, (_, i) => answers[i + 1] || 3);
+        localStorage.setItem('heartis_result', heartisType);
+        localStorage.setItem('heartis_code', code);
+        localStorage.setItem('heartis_scores', JSON.stringify({ O, C, E, A }));
+        localStorage.setItem('heartis_answers', JSON.stringify(answersArray));
+      } catch (e) {
+        console.error('Failed to save result', e);
+      }
+
+      // 上传到 Google Sheets（如果需要）
+      try {
+        const resultType = heartisType;
+        const codeValue = code;
+        const scores = { O, C, E, A };
+        const answersArray = Array.from({ length: 30 }, (_, i) => answers[i + 1] || 3);
+
+        fetch("https://script.google.com/macros/s/AKfycbwdiFZ2AD-vVd7LbYzdtbWZ-4I3V0q-mCS3hzilK7OCC0wn1OJjlVtulSf6JQtKmkt3/exec", {
+          method: "POST",
+          mode: "no-cors",
+          body: JSON.stringify({
+            result: resultType,
+            code: codeValue,
+            scores,
+            answers: answersArray,
+          }),
+        });
+      } catch (e) {
+        console.error('Failed to upload result', e);
+      }
+
+      // 显示结果页
+      document.getElementById('result-title').textContent = data.title;
+      document.getElementById('result-essence').textContent = data.core;
+      
+      const paragraphsDiv = document.getElementById('result-paragraphs');
+      paragraphsDiv.innerHTML = data.paragraphs.map(p => 
+        `<p class="paragraph">${p}</p>`
+      ).join('');
+      
+      document.getElementById('result-remember').textContent = data.remember;
+
+      const video = document.getElementById('result-video');
+      const heart = document.getElementById('result-heart');
+      video.src = `/result/${heartisType}.mp4`;
+      heart.src = `/result/${heartisType}-heart.png`;
+
+      isHeartView = false;
+      updateResultView();
+
+      showPage('result');
+    }
+
+    // 切换结果视图
+    function toggleView() {
+      isHeartView = !isHeartView;
+      updateResultView();
+    }
+
+    function updateResultView() {
+      const video = document.getElementById('result-video');
+      const heart = document.getElementById('result-heart');
+      const toggle = document.querySelector('.view-toggle');
+
+      if (isHeartView) {
+        video.classList.add('hidden');
+        heart.classList.remove('hidden');
+        toggle.textContent = 'Character View';
+      } else {
+        video.classList.remove('hidden');
+        heart.classList.add('hidden');
+        toggle.textContent = 'Heart View';
+      }
+    }
+
+    // 重启
+    function restart() {
+      localStorage.removeItem('heartis_answers');
+      localStorage.removeItem('heartis_result');
+      localStorage.removeItem('heartis_code');
+      localStorage.removeItem('heartis_scores');
+      localStorage.removeItem('heartis_result_full');
+      localStorage.removeItem('heartis_history');
+      
+      answers = {};
+      currentQuizPage = 0;
+      showPage('home');
+    }
+
+    // 初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      // 检查是否有保存的答案
+      try {
+        const saved = localStorage.getItem('heartis_answers');
+        if (saved) {
+          answers = JSON.parse(saved);
+        }
+      } catch (e) {}
+    });
+  </script>
+</body>
+</html>
+
